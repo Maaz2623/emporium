@@ -1,3 +1,4 @@
+use actix_cors::Cors;
 use actix_web::{web, App, HttpServer, Responder, HttpResponse, middleware};
 use sqlx::PgPool;
 use std::env;
@@ -38,6 +39,9 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(web::Data::new(AppState { pool: pool.clone() }))
             .wrap(middleware::Logger::default()) // Logger middleware
+            .wrap(Cors::default().allowed_origin("http://localhost:3000") // Allow requests from specific origin
+            .allowed_methods(vec!["GET", "POST", "PUT", "DELETE"]) // Allowed HTTP methods
+            .allowed_headers(vec!["Content-Type", "Authorization"])) // Allowed headers
             .route("/health", web::get().to(health_check)) // Health check endpoint
     })
     .bind("0.0.0.0:8080")?
